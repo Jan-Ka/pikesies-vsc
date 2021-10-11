@@ -2,7 +2,7 @@
 	"name": "pikesies",
 	"displayName": "pikesies",
 	"description": "Visual Studio Code Extension to Manage World Anvil Presentation CSS",
-	"version": "0.0.1",
+	"version": "0.1.0",
 	"engines": {
 		"vscode": "^1.61.0"
 	},
@@ -10,14 +10,14 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:pikesies.helloWorld"
+		"onCommand:pikesies.validate"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
 		"commands": [
 			{
-				"command": "pikesies.helloWorld",
-				"title": "Hello World"
+				"command": "pikesies.validate",
+				"title": "Validate PCSS"
 			}
 		]
 	},
