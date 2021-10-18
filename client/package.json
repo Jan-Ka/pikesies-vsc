@@ -1,11 +1,13 @@
 {
     "name": "pikesies-client",
+    "description": "Client for pikesies-lsp",
+    "author": {
+        "name": "Jan Kaltenecker",
+        "url": "https://www.cold90.com"
+    },
     "private": "true",
-    "version": "0.1.0",
-    "description": "LSP for pikesies",
+    "version": "1.0.0",
     "scripts": {},
-    "author": "",
-    "license": "MIT",
     "engines": {
         "vscode": "^1.61.0"
     },
