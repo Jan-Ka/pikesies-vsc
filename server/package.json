@@ -1,0 +1,15 @@
+{
+  "name": "pikesies-lsp",
+  "private": "true",
+  "version": "0.1.0",
+  "description": "LSP for pikesies",
+  "scripts": {},
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": "*"
+  },
+  "dependencies": {
+    "vscode-languageserver": "^7.0.0"
+  }
+}
