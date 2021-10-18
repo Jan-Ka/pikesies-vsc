@@ -1,3 +1,5 @@
+import * as readline from 'readline';
+import * as fs from 'fs';
 import {
     createConnection,
     ProposedFeatures,
@@ -5,47 +7,58 @@ import {
     InitializeResult,
     DidChangeConfigurationParams,
     DidChangeWatchedFilesParams,
-    DiagnosticSeverity,
     Diagnostic,
-    Position
+    ExecuteCommandParams,
+    URI
 } from "vscode-languageserver/node";
 
 // @ts-ignore 6059
-import { name as clientName } from '../../package.json';
+import { name as serverName } from '../package.json';
+import { rules } from './rules';
+import { config } from './config';
+import { URI as Uri } from 'vscode-uri';
 
 const connection = createConnection(ProposedFeatures.all);
-
-let hasConfigurationCapability = false;
-let hasWorkspaceFolderCapability = false;
-let hasDiagnosticRelatedInformationCapability = false;
 
 connection.onInitialize((params: InitializeParams) => {
     const capabilities = params.capabilities;
 
     // Does the client support the `workspace/configuration` request?
     // If not, we fall back using global settings.
-    hasConfigurationCapability = !!(
+    config.hasConfigurationCapability = !!(
         capabilities.workspace && !!capabilities.workspace.configuration
     );
-    hasWorkspaceFolderCapability = !!(
+
+    config.hasWorkspaceFolderCapability = !!(
         capabilities.workspace && !!capabilities.workspace.workspaceFolders
     );
-    hasDiagnosticRelatedInformationCapability = !!(
+
+    config.hasDiagnosticRelatedInformationCapability = !!(
         capabilities.textDocument &&
         capabilities.textDocument.publishDiagnostics &&
         capabilities.textDocument.publishDiagnostics.relatedInformation
     );
 
     const result: InitializeResult = {
-        capabilities: {}
+        capabilities: {
+            executeCommandProvider: {
+                commands: [
+                    "pikesies-lsp.validate"
+                ]
+            }
+        }
     };
-    if (hasWorkspaceFolderCapability) {
+
+    if (config.hasWorkspaceFolderCapability) {
         result.capabilities.workspace = {
             workspaceFolders: {
                 supported: true
             }
         };
     }
+
+    connection.console.log(`Initialized ${serverName}`);
+
     return result;
 });
 
@@ -56,53 +69,61 @@ interface LspSettings {
 const defaultSettings: LspSettings = { maxNumberOfProblems: 1000 };
 let globalSettings: LspSettings = defaultSettings;
 
-// Cache the settings of all open documents
-const documentSettings: Map<string, Thenable<LspSettings>> = new Map();
 
 connection.onDidChangeConfiguration((params: DidChangeConfigurationParams): void => {
-    if (hasConfigurationCapability) {
-        documentSettings.clear();
-    } else {
-        globalSettings = <LspSettings>((params.settings.pikesies || defaultSettings));
-    }
+    globalSettings = <LspSettings>((params.settings.pikesies || defaultSettings));
 });
 
 connection.onDidChangeWatchedFiles((params: DidChangeWatchedFilesParams): void => {
     connection.console.log('We received a file change event');
 
-    let diagnostics: Diagnostic[] = [];
+    const fileUri = params.changes[0].uri;
+    const uri = Uri.parse(fileUri, true);
 
-    let diagnostic: Diagnostic = {
-        severity: DiagnosticSeverity.Warning,
-        range: {
-            start: Position.create(0, 0),
-            end: Position.create(0, 1),
-        },
-        message: 'yodel',
-        source: clientName
-    };
+    validateCssFile(uri.fsPath);
+});
 
-    // if (hasDiagnosticRelatedInformationCapability) {
-    //     diagnostic.relatedInformation = [
-    //         {
-    //             location: {
-    //                 uri: textDocument.uri,
-    //                 range: Object.assign({}, diagnostic.range)
-    //             },
-    //             message: 'Spelling matters'
-    //         },
-    //         {
-    //             location: {
-    //                 uri: textDocument.uri,
-    //                 range: Object.assign({}, diagnostic.range)
-    //             },
-    //             message: 'Particularly for names'
-    //         }
-    //     ];
-    // }
-    diagnostics.push(diagnostic);
+connection.onExecuteCommand((params: ExecuteCommandParams): void => {
+    connection.console.log(`received ${params.command}`);
+    if (params.command !== "pikesies-lsp.validate" || !params.arguments) {
+        return;
+    }
 
-    connection.sendDiagnostics({ uri: params.changes[0].uri, diagnostics });
+    const activeFile = params.arguments[0];
+
+    validateCssFile(activeFile);
 });
 
 connection.listen();
+
+
+function validateCssFile(uri: URI): Promise<void> {
+    const readInterface = readline.createInterface({
+        input: fs.createReadStream(uri),
+        terminal: false
+    });
+
+    let diagnostics: Diagnostic[] = [];
+
+    let curLine = 0;
+
+    readInterface.on('line', (line: string) => {
+        for (const rule of rules) {
+            const diagnostic = rule.validation(line, curLine);
+
+            if (Diagnostic.is(diagnostic)) {
+                diagnostics.push(diagnostic);
+            }
+        }
+
+        curLine++;
+    });
+
+    return new Promise((resolve) => {
+        readInterface.on('close', () => {
+            connection.sendDiagnostics({ uri, diagnostics });
+
+            resolve();
+        });
+    });
+}

@@ -21,7 +21,10 @@ export function activate(context: ExtensionContext): void {
 	const debugOptions = { execArgv: ['--nolazy', '--inspect=6009'] };
 
 	const serverOptions: ServerOptions = {
-		run: { module: serverModule, transport: TransportKind.ipc },
+		run: {
+			module: serverModule,
+			transport: TransportKind.ipc
+		},
 		debug: {
 			module: serverModule,
 			transport: TransportKind.ipc,
@@ -32,11 +35,15 @@ export function activate(context: ExtensionContext): void {
 	// Options to control the language client
 	let clientOptions: LanguageClientOptions = {
 		// Register the server for css documents
-		documentSelector: [{ scheme: 'file', language: 'css' }],
+		documentSelector: [
+			{
+				scheme: 'file',
+				language: 'css'
+			}],
 		synchronize: {
 			// Notify the server about file changes to '.clientrc files contained in the workspace
 			fileEvents: workspace.createFileSystemWatcher('**/*.css')
-		}
+		},
 	};
 
 	client = new LanguageClient(
@@ -51,8 +58,8 @@ export function activate(context: ExtensionContext): void {
 
 	const disposable = commands.registerCommand('pikesies.validate', (uri?: Uri) => {
 		// if we don't get a file through the context, check if we got a file open
-		if (uri === undefined) {
-			if (window.activeTextEditor === undefined) {
+		if (typeof (uri) === 'undefined') {
+			if (typeof (window.activeTextEditor) === 'undefined') {
 				window.showInformationMessage('Please open a file to validate');
 				return;
 			} else {
@@ -70,12 +77,17 @@ export function activate(context: ExtensionContext): void {
 			return;
 		}
 
+		console.log(`Triggered validate for ${uri.fsPath}`);
+
+		commands.executeCommand("pikesies-lsp.validate", uri.fsPath);
 	});
 
 	context.subscriptions.push(disposable);
 }
 
 export function deactivate(): Promise<void> | undefined {
+	console.log(`Deactivating ${clientName}`);
+
 	if (!client) {
 		return undefined;
 	}
