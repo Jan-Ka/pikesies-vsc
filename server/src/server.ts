@@ -18,7 +18,10 @@ import { URI as Uri } from 'vscode-uri';
 // @ts-ignore 6059
 import { name as serverName } from '../package.json';
 import { config } from './config';
-import { Rules } from './rules';
+import { applicable, getCodeCategoryFromCode } from './rules/rules';
+import { isResult, Result } from './rules/result';
+import { Codes } from './rules/codes';
+import { Match } from './rules/types';
 
 const connection = createConnection(ProposedFeatures.all);
 
@@ -108,14 +111,18 @@ function validateCssFile(uri: URI): Promise<void> {
     let diagnostics: Diagnostic[] = [];
 
     let curLine = 0;
+    let anyDiagnostics = false;
 
     readInterface.on('line', (line: string) => {
-        for (const rule of Rules.all) {
+
+        for (const rule of applicable) {
             const result = rule.validation(line, curLine);
 
-            if (!Rules.isResult(result)) {
+            if (!isResult(result)) {
                 continue;
             }
+
+            anyDiagnostics = true;
 
             const diagnostic = validationResultToDiagnostic(result);
 
@@ -127,22 +134,27 @@ function validateCssFile(uri: URI): Promise<void> {
 
     return new Promise((resolve) => {
         readInterface.on('close', () => {
-            connection.sendDiagnostics({ uri, diagnostics });
+            if (anyDiagnostics) {
+                connection.sendDiagnostics({ uri, diagnostics });
+            } else {
+                connection.sendNotification(`${serverName}.noProblemsFound`);
+            }
+
 
             resolve();
         });
     });
 }
 
-function ruleCodeToSeverity(ruleCode: Rules.Codes): DiagnosticSeverity {
+function ruleCodeToSeverity(ruleCode: Codes): DiagnosticSeverity {
     switch (ruleCode) {
-        case Rules.Codes.error:
+        case Codes.error:
             return DiagnosticSeverity.Error;
-        case Rules.Codes.warning:
+        case Codes.warning:
             return DiagnosticSeverity.Warning;
-        case Rules.Codes.information:
+        case Codes.information:
             return DiagnosticSeverity.Information;
-        case Rules.Codes.hint:
+        case Codes.hint:
             return DiagnosticSeverity.Hint;
         default:
             log(`Unhandled ruleCode: ${ruleCode}`);
@@ -150,10 +162,10 @@ function ruleCodeToSeverity(ruleCode: Rules.Codes): DiagnosticSeverity {
     }
 }
 
-function validationResultToDiagnostic(validationResult: Rules.Result): Diagnostic {
-    const firstMatch: Rules.Match = validationResult.matches[0];
+function validationResultToDiagnostic(validationResult: Result): Diagnostic {
+    const firstMatch: Match = validationResult.matches[0];
 
-    const codeCategory = Rules.getCodeCategoryFromCode(validationResult.code);
+    const codeCategory = getCodeCategoryFromCode(validationResult.code);
     const severity = ruleCodeToSeverity(codeCategory);
 
     const diagnostic: Diagnostic = {

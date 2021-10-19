@@ -1,11 +1,13 @@
 import * as path from 'path';
 import { commands, ExtensionContext, Uri, window, workspace } from 'vscode';
 import { ServerOptions, TransportKind, LanguageClientOptions, LanguageClient } from 'vscode-languageclient/node';
-// @ts-ignore 6059
-import { name as lspName } from '../../server/package.json';
 
 // @ts-ignore 6059
+import { name as lspName } from '../../server/package.json';
+// @ts-ignore 6059
 import { name as clientName } from '../package.json';
+// @ts-ignore 6059
+import { name as appName } from '../../package.json';
 
 let client: LanguageClient;
 
@@ -43,7 +45,7 @@ export function activate(context: ExtensionContext): void {
 		synchronize: {
 			// Notify the server about file changes to '.clientrc files contained in the workspace
 			fileEvents: workspace.createFileSystemWatcher('**/*.css')
-		},
+		}
 	};
 
 	client = new LanguageClient(
@@ -55,6 +57,12 @@ export function activate(context: ExtensionContext): void {
 
 	// Start the client. This will also launch the server
 	client.start();
+
+	client.onReady().then(() => {
+		client.onNotification(`${lspName}.noProblemsFound`, () => {
+			window.showInformationMessage(`${appName} has completed validation without finding any problems.`);
+		});
+	});
 
 	const disposable = commands.registerCommand('pikesies.validate', (uri?: Uri) => {
 		// if we don't get a file through the context, check if we got a file open
@@ -79,7 +87,7 @@ export function activate(context: ExtensionContext): void {
 
 		console.log(`Triggered validate for ${uri.fsPath}`);
 
-		commands.executeCommand("pikesies-lsp.validate", uri.fsPath);
+		commands.executeCommand(`${lspName}.validate`, uri.fsPath);
 	});
 
 	context.subscriptions.push(disposable);
