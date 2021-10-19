@@ -157,6 +157,7 @@ function validationResultToDiagnostic(validationResult: Rules.Result): Diagnosti
     const severity = ruleCodeToSeverity(codeCategory);
 
     const diagnostic: Diagnostic = {
+        code: validationResult.code,
         severity,
         range: {
             start: Position.create(firstMatch.start.line, firstMatch.start.character),

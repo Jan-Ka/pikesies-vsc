@@ -109,9 +109,9 @@ export namespace Rules {
         }
     }
 
-    const verbatimOccuranceMatcher = (needle: string, resultCode: Codes): Rule => {
+    function verbatimOccuranceMatcher(resultCode: Codes, needle: string): Rule {
         return {
-            name: `no-${needle}-selector`,
+            name: Codes[resultCode],
             code: getCodeCategoryFromCode(resultCode),
             validation: (line: string, lineNumber: number) => {
                 const idx = line.toLocaleLowerCase().indexOf(needle);
@@ -134,7 +134,7 @@ export namespace Rules {
                             }
                         }
                     ],
-                    message: `"${needle}" is forbidden to occur`,
+                    message: `avoid "${needle}"`,
                     source: extName
                 };
 
@@ -143,9 +143,9 @@ export namespace Rules {
         };
     };
 
-    const regexMatcher = (ruleName: string, resultCode: Codes, humanNeedleName: string, regex: RegExp): Rule => {
+    function regexMatcher(resultCode: Codes, humanNeedleName: string, regex: RegExp): Rule {
         return {
-            name: ruleName,
+            name: Codes[resultCode],
             code: getCodeCategoryFromCode(resultCode),
             validation: (line: string, lineNumber: number): Result | undefined => {
                 const matches = [...line.matchAll(regex)];
@@ -173,7 +173,7 @@ export namespace Rules {
                             }
                         }
                     ],
-                    message: `${humanNeedleName} is forbidden to occur`,
+                    message: `avoid "${humanNeedleName}"`,
                     source: extName
                 };
 
@@ -182,37 +182,34 @@ export namespace Rules {
         };
     };
 
-    export const noSingleQuote: Rule = regexMatcher("no-single-quote", Codes.noSingleQuoteOccurance, "single-quote ( ' )", /'/g);
+    export const noSingleQuote: Rule = regexMatcher(Codes.noSingleQuoteOccurance, "single-quote ( ' )", /'/g);
 
-    export const noDoubleQuote: Rule = regexMatcher("no-double-quote", Codes.noDoubleQuoteOccurance, "double-quote ( \" )", /"/g);
+    export const noDoubleQuote: Rule = regexMatcher(Codes.noDoubleQuoteOccurance, "double-quote ( \" )", /"/g);
 
-    export const noLesserThanHTMLSpecialCharOccurance: Rule = regexMatcher("no-lesser-than-html-special-char", Codes.noLesserThanHTMLSpecialCharOccurance, "&lt;", /&lt;/gi);
+    export const noLesserThanHTMLSpecialCharOccurance: Rule = regexMatcher(Codes.noLesserThanHTMLSpecialCharOccurance, "&lt;", /&lt;/gi);
 
-    export const noGreaterThanHTMLSpecialCharOccurance: Rule = regexMatcher("no-greater-than-html-special-char", Codes.noLesserThanHTMLSpecialCharOccurance, "&gt;", /&gt;/gi);
+    export const noGreaterThanHTMLSpecialCharOccurance: Rule = regexMatcher(Codes.noLesserThanHTMLSpecialCharOccurance, "&gt;", /&gt;/gi);
 
-    export const noLesserThanLiteral: Rule = regexMatcher("no-lesser-than-literal", Codes.noLesserThanLiteral, "<", /</g);
+    export const noLesserThanLiteral: Rule = regexMatcher(Codes.noLesserThanLiteral, "<", /</g);
 
-    export const noGreaterThanLiteral: Rule = regexMatcher("no-greater-than-literal", Codes.noGreaterThanLiteral, ">", />/g);
+    export const noGreaterThanLiteral: Rule = regexMatcher(Codes.noGreaterThanLiteral, ">", />/g);
 
-    export const verbatimBody: Rule = verbatimOccuranceMatcher("body", Codes.noVerbatimBodyOccurance);
+    export const verbatimBody: Rule = verbatimOccuranceMatcher(Codes.noVerbatimBodyOccurance, "body");
 
-    export const verbatimContainer: Rule = verbatimOccuranceMatcher("container", Codes.noVerbatimContainerOccurance);
+    export const verbatimContainer: Rule = verbatimOccuranceMatcher(Codes.noVerbatimContainerOccurance, "container");
 
-    export const verbatimScript: Rule = verbatimOccuranceMatcher("script", Codes.noVerbatimScriptOccurance);
+    export const verbatimScript: Rule = verbatimOccuranceMatcher(Codes.noVerbatimScriptOccurance, "script");
 
-    export const verbatimFooter: Rule = verbatimOccuranceMatcher("footer", Codes.noVerbatimFooterOccurance);
+    export const verbatimFooter: Rule = verbatimOccuranceMatcher(Codes.noVerbatimFooterOccurance, "footer");
 
-    export const verbatimStyle: Rule = verbatimOccuranceMatcher("style", Codes.noVerbatimStyleOccurance);
+    export const verbatimStyle: Rule = verbatimOccuranceMatcher(Codes.noVerbatimStyleOccurance, "style");
 
-    export const noClassBeginningWithSh: Rule = regexMatcher("no-classes-starting-with-sh", Codes.noClassBeginningWithSh, ".sh*", /\.sh/gi);
+    export const noClassBeginningWithSh: Rule = regexMatcher(Codes.noClassBeginningWithSh, "sh", /\.sh/gi);
 
-    export const noClassBeginningWithCss: Rule = regexMatcher("no-classes-starting-with-css", Codes.noClassBeginningWithCss, ".css*", /\.css/gi);
+    export const noClassBeginningWithCss: Rule = regexMatcher(Codes.noClassBeginningWithCss, "css", /\.css/gi);
 
-    export const noClassContainingCss: Rule = regexMatcher("no-classes-containing-css", Codes.noClassContainingCss, ".css*", /(?<!\.user-)css/gi);
+    export const noClassContainingCss: Rule = regexMatcher(Codes.noClassContainingCss, "css", /(?<!\.user-)css/gi);
 
-    /**
-     * as per {@link World Anvil Codex on CSS https://www.worldanvil.com/w/WorldAnvilCodex/a/css}
-     */
     export const all: Rule[] = [
         noSingleQuote,
         noDoubleQuote,
