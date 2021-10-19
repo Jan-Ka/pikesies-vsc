@@ -8,15 +8,17 @@ import {
     DidChangeConfigurationParams,
     DidChangeWatchedFilesParams,
     Diagnostic,
+    Position,
     ExecuteCommandParams,
-    URI
+    URI,
+    DiagnosticSeverity
 } from "vscode-languageserver/node";
+import { URI as Uri } from 'vscode-uri';
 
 // @ts-ignore 6059
 import { name as serverName } from '../package.json';
-import { rules } from './rules';
 import { config } from './config';
-import { URI as Uri } from 'vscode-uri';
+import { Rules } from './rules';
 
 const connection = createConnection(ProposedFeatures.all);
 
@@ -108,12 +110,14 @@ function validateCssFile(uri: URI): Promise<void> {
     let curLine = 0;
 
     readInterface.on('line', (line: string) => {
-        for (const rule of rules) {
-            const diagnostic = rule.validation(line, curLine);
+        for (const rule of Rules.all) {
+            const result = rule.validation(line, curLine);
 
-            if (Diagnostic.is(diagnostic)) {
-                diagnostics.push(diagnostic);
+            if (typeof (result) === 'undefined') {
+                continue;
             }
+
+            diagnostics.push(validationResultToDiagnostic(result));
         }
 
         curLine++;
@@ -126,4 +130,41 @@ function validateCssFile(uri: URI): Promise<void> {
             resolve();
         });
     });
+}
+
+function ruleCodeToSeverity(ruleCode: Rules.Codes): DiagnosticSeverity {
+    switch (ruleCode) {
+        case Rules.Codes.error:
+            return DiagnosticSeverity.Error;
+        case Rules.Codes.warning:
+            return DiagnosticSeverity.Warning;
+        case Rules.Codes.information:
+            return DiagnosticSeverity.Information;
+        case Rules.Codes.hint:
+            return DiagnosticSeverity.Hint;
+        default:
+            log(`Unhandled ruleCode: ${ruleCode}`);
+            return DiagnosticSeverity.Information;
+    }
+}
+
+function validationResultToDiagnostic(validationResult: Rules.Result): Diagnostic {
+    const firstMatch: Rules.Match = validationResult.matches[0];
+
+    const diagnostic: Diagnostic = {
+        severity: ruleCodeToSeverity(validationResult.code),
+        range: {
+            start: Position.create(firstMatch.start.line, firstMatch.start.character),
+            end: Position.create(firstMatch.end.line, firstMatch.end.character),
+        },
+        message: validationResult.message,
+        source: validationResult.source,
+    };
+
+    return diagnostic;
+}
+
+function log(message: string) {
+    console.log(message);
+    connection.console.log.call(null, message);
 }

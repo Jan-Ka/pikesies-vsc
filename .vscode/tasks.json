@@ -15,6 +15,17 @@
 				"kind": "build",
 				"isDefault": true
 			}
+		},
+		{
+			"type": "npm",
+			"script": "test:server",
+			"group": {
+				"kind": "test",
+				"isDefault": true
+			},
+			"problemMatcher": [],
+			"label": "npm: test lsp server",
+			"detail": "npm run compile:server && cd server && npm test && cd ..",
 		}
 	]
 }
