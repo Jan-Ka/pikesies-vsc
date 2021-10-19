@@ -110,3 +110,5 @@ dist
 out
 
 *.vsix
+
+src/**/*.js

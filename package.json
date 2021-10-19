@@ -76,7 +76,9 @@
 		"compile:client": "tsc -b ./client/tsconfig.json",
 		"compile:server": "tsc -b ./server/tsconfig.json",
 		"watch": "tsc -b -w",
-		"test": "cd client && npm test && cd ..",
+		"test": "npm run test:client",
+		"test:client": "cd client && npm test && cd ..",
+		"test:server": "npm run compile:server && cd server && npm test && cd ..",
 		"lint": "node ./build/bin/all.js run lint",
 		"clean": "rimraf client/out && rimraf server/out",
 		"postinstall": "node ./build/bin/all.js install"
