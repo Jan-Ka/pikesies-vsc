@@ -7,11 +7,14 @@
     },
     "private": "true",
     "version": "1.0.0",
-    "scripts": {},
     "engines": {
         "vscode": "^1.61.0"
     },
     "dependencies": {
         "vscode-languageclient": "^7.0.0"
+    },
+    "scripts": {
+        "test": "node ../node_modules/mocha/bin/_mocha",
+        "lint": "node ../node_modules/eslint/bin/eslint.js --ext ts src"
     }
 }

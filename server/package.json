@@ -2,17 +2,19 @@
   "name": "pikesies-lsp",
   "description": "LSP for pikesies",
   "author": {
-		"name": "Jan Kaltenecker",
-		"url": "https://www.cold90.com"
-	},
+    "name": "Jan Kaltenecker",
+    "url": "https://www.cold90.com"
+  },
   "private": "true",
   "version": "1.0.0",
-  "scripts": {},
   "engines": {
     "node": "*"
   },
   "dependencies": {
     "vscode-languageserver": "^7.0.0",
     "vscode-uri": "^3.0.2"
+  },
+  "scripts": {
+    "lint": "node ../node_modules/eslint/bin/eslint.js --ext ts src"
   }
 }

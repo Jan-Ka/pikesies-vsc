@@ -23,7 +23,8 @@ This extension contributes the following settings:
 
 ## Known Issues
 
-- None
+- No Component Testing
+- No E2E Testing
 
 ## Release Notes
 
