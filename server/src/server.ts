@@ -113,11 +113,13 @@ function validateCssFile(uri: URI): Promise<void> {
         for (const rule of Rules.all) {
             const result = rule.validation(line, curLine);
 
-            if (typeof (result) === 'undefined') {
+            if (!Rules.isResult(result)) {
                 continue;
             }
 
-            diagnostics.push(validationResultToDiagnostic(result));
+            const diagnostic = validationResultToDiagnostic(result);
+
+            diagnostics.push(diagnostic);
         }
 
         curLine++;
@@ -151,8 +153,11 @@ function ruleCodeToSeverity(ruleCode: Rules.Codes): DiagnosticSeverity {
 function validationResultToDiagnostic(validationResult: Rules.Result): Diagnostic {
     const firstMatch: Rules.Match = validationResult.matches[0];
 
+    const codeCategory = Rules.getCodeCategoryFromCode(validationResult.code);
+    const severity = ruleCodeToSeverity(codeCategory);
+
     const diagnostic: Diagnostic = {
-        severity: ruleCodeToSeverity(validationResult.code),
+        severity,
         range: {
             start: Position.create(firstMatch.start.line, firstMatch.start.character),
             end: Position.create(firstMatch.end.line, firstMatch.end.character),

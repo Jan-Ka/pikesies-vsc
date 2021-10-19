@@ -73,6 +73,11 @@ export namespace Rules {
         validation: (line: string, lineNumber: number) => Result | undefined
     };
 
+    /**
+     * Result Typeguard
+     * @param x any value
+     * @returns true if x is Result
+     */
     export function isResult(x: any): x is Result {
         if (typeof (x) !== "object") {
             return false;
@@ -91,7 +96,7 @@ export namespace Rules {
         return true;
     }
 
-    function codeCategoryFromCode(code: Codes): Codes {
+    export function getCodeCategoryFromCode(code: Codes): Codes {
         switch (true) {
             case code >= Codes.error && code < Codes.warning:
                 return Codes.error;
@@ -107,7 +112,7 @@ export namespace Rules {
     const verbatimOccuranceMatcher = (needle: string, resultCode: Codes): Rule => {
         return {
             name: `no-${needle}-selector`,
-            code: codeCategoryFromCode(resultCode),
+            code: getCodeCategoryFromCode(resultCode),
             validation: (line: string, lineNumber: number) => {
                 const idx = line.toLocaleLowerCase().indexOf(needle);
 
@@ -129,7 +134,7 @@ export namespace Rules {
                             }
                         }
                     ],
-                    message: `"${needle}" is forbidden to occure `,
+                    message: `"${needle}" is forbidden to occur`,
                     source: extName
                 };
 
@@ -141,7 +146,7 @@ export namespace Rules {
     const regexMatcher = (ruleName: string, resultCode: Codes, humanNeedleName: string, regex: RegExp): Rule => {
         return {
             name: ruleName,
-            code: codeCategoryFromCode(resultCode),
+            code: getCodeCategoryFromCode(resultCode),
             validation: (line: string, lineNumber: number): Result | undefined => {
                 const matches = [...line.matchAll(regex)];
 
@@ -168,7 +173,7 @@ export namespace Rules {
                             }
                         }
                     ],
-                    message: `${humanNeedleName} is forbidden to occure`,
+                    message: `${humanNeedleName} is forbidden to occur`,
                     source: extName
                 };
 
