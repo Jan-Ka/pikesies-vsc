@@ -108,3 +108,5 @@ dist
 .vscode-test
 
 out
+
+*.vsix
