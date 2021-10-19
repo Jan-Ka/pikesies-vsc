@@ -178,40 +178,6 @@ export namespace Rules {
                 };
 
                 return result;
-
-                // let diagnostic: Diagnostic = {
-                //     severity: DiagnosticSeverity.Error,
-                //     range: {
-                //         start: Position.create(lineNumber, firstMatchIdx),
-                //         end: Position.create(lineNumber, lastMatchIdx),
-                //     },
-                //     message: `${humanNeedleName} is forbidden`,
-                //     source: extName,
-                // };
-
-                // TODO: get uri?
-                // if (config.hasDiagnosticRelatedInformationCapability && matches.length > 2) {
-                //     const additionalMatches = matches.slice(1, -1);
-
-                //     const relatedInformation: DiagnosticRelatedInformation[] = [];
-
-                //     for (const match of additionalMatches) {
-                //         const matchIdx = match.index as number;
-
-                //         relatedInformation.push({
-                //             location: {
-                //                 uri: "",
-                //                 range: {
-                //                     start: Position.create(lineNumber, matchIdx),
-                //                     end: Position.create(lineNumber, matchIdx + match[0].length)
-                //                 }
-                //             },
-                //             message: ""
-                //         });
-                //     }
-
-                //     diagnostic.relatedInformation = relatedInformation;
-                // }
             }
         };
     };
