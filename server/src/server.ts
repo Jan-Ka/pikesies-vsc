@@ -75,7 +75,7 @@ let globalSettings: LspSettings = defaultSettings;
 
 
 connection.onDidChangeConfiguration((params: DidChangeConfigurationParams): void => {
-    globalSettings = <LspSettings>((params.settings.pikesies || defaultSettings));
+    globalSettings = <LspSettings>(params.settings.pikesies || defaultSettings);
 });
 
 connection.onDidChangeWatchedFiles((params: DidChangeWatchedFilesParams): void => {

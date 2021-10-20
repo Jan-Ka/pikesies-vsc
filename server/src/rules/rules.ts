@@ -94,7 +94,7 @@ function verbatimOccuranceMatcher(resultCode: Codes, needle: string): Rule {
             return result;
         }
     };
-};
+}
 
 function regexMatcher(resultCode: Codes, humanNeedleName: string, regex: RegExp): Rule {
     return {
@@ -133,7 +133,7 @@ function regexMatcher(resultCode: Codes, humanNeedleName: string, regex: RegExp)
             return result;
         }
     };
-};
+}
 
 function noopMatcher(resultCode: Codes): Rule {
     return {
