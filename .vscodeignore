@@ -11,6 +11,7 @@ shared.webpack.config.js
 **/tslint.json
 .vscode/**
 .github/**
+.devcontainer/**
 build/**
 images/**
 playgrounds/**
@@ -23,6 +24,7 @@ client/out/package.json
 !client/out/extension.js
 
 server/*
+server/test/*
 !server/out
 server/out/*
 server/out/package.json
