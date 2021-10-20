@@ -1,3 +1,3 @@
-out/tests
+out/test
 --recursive
 --ui tdd

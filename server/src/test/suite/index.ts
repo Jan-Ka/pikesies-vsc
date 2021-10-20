@@ -29,9 +29,9 @@ export function run(): Promise<void> {
                         c();
                     }
                 });
-            } catch (err) {
-                console.error(err);
-                e(err);
+            } catch (mochaErr) {
+                console.error(mochaErr);
+                e(mochaErr);
             }
         });
     });

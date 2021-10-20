@@ -1,6 +1,6 @@
 {
     "spec": [
-        "out/tests"
+        "out/test"
     ],
     "extension": [
         "js"

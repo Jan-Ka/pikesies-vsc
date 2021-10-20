@@ -1,5 +1,4 @@
 import * as assert from 'assert';
-import exp = require('constants');
 import { Codes } from '../../rules/codes';
 import { isResult } from '../../rules/result';
 import { applicable, getRule } from '../../rules/rules';
@@ -92,10 +91,6 @@ suite('Validation', () => {
 
 				assert.strictEqual(typeof (actual), expected);
 			});
-		});
-
-		suite(Codes[Codes.noVerbatimStyleOccurance], () => {
-
 		});
 	});
 
