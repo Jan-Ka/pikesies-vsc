@@ -30,6 +30,11 @@ This extension contributes the following settings:
 
 Users appreciate release notes as you update your extension.
 
+### 1.1.0
+
+- Added Component Testing
+- Added `noClassContainingCss` Rule
+
 ### 1.0.0
 
 Initial release of `pikesies-vsc`
