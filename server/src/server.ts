@@ -2,26 +2,25 @@ import * as readline from 'readline';
 import * as fs from 'fs';
 import {
     createConnection,
-    ProposedFeatures,
-    InitializeParams,
-    InitializeResult,
+    Diagnostic,
+    DiagnosticSeverity,
     DidChangeConfigurationParams,
     DidChangeWatchedFilesParams,
-    Diagnostic,
-    Position,
     ExecuteCommandParams,
+    InitializeParams,
+    InitializeResult,
+    Position,
+    ProposedFeatures,
     URI,
-    DiagnosticSeverity
 } from "vscode-languageserver/node";
 import { URI as Uri } from 'vscode-uri';
 
-// @ts-ignore 6059
-import { name as serverName } from '../package.json';
-import { config } from './config';
 import { applicable, getCodeCategoryFromCode } from './rules/rules';
-import { isResult, Result } from './rules/result';
 import { Codes } from './rules/codes';
+import { config } from './config';
+import { isResult, Result } from './rules/result';
 import { Match } from './rules/types';
+import { SERVER_COMMANDS, SERVER_METHODS, SERVER_NAME } from './globals';
 
 const connection = createConnection(ProposedFeatures.all);
 
@@ -48,7 +47,7 @@ connection.onInitialize((params: InitializeParams) => {
         capabilities: {
             executeCommandProvider: {
                 commands: [
-                    "pikesies-lsp.validate"
+                    SERVER_COMMANDS.validate
                 ]
             }
         }
@@ -62,7 +61,7 @@ connection.onInitialize((params: InitializeParams) => {
         };
     }
 
-    connection.console.log(`Initialized ${serverName}`);
+    connection.console.log(`Initialized ${SERVER_NAME}`);
 
     return result;
 });
@@ -90,7 +89,7 @@ connection.onDidChangeWatchedFiles((params: DidChangeWatchedFilesParams): void =
 
 connection.onExecuteCommand((params: ExecuteCommandParams): void => {
     connection.console.log(`received ${params.command}`);
-    if (params.command !== "pikesies-lsp.validate" || !params.arguments) {
+    if (params.command !== SERVER_COMMANDS.validate || !params.arguments) {
         return;
     }
 
@@ -137,7 +136,7 @@ function validateCssFile(uri: URI): Promise<void> {
             if (anyDiagnostics) {
                 connection.sendDiagnostics({ uri, diagnostics });
             } else {
-                connection.sendNotification(`${serverName}.noProblemsFound`);
+                connection.sendNotification(SERVER_METHODS.noProblemsFound);
             }
 
 

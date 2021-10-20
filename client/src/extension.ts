@@ -1,19 +1,13 @@
 import * as path from 'path';
 import { commands, ExtensionContext, Uri, window, workspace } from 'vscode';
 import { ServerOptions, TransportKind, LanguageClientOptions, LanguageClient } from 'vscode-languageclient/node';
-
-// @ts-ignore 6059
-import { name as lspName } from '../../server/package.json';
-// @ts-ignore 6059
-import { name as clientName } from '../package.json';
-// @ts-ignore 6059
-import { name as appName } from '../../package.json';
+import { APP_COMMANDS, APP_NAME, CLIENT_NAME, SERVER_COMMANDS, SERVER_METHODS, SERVER_NAME } from './globals';
 
 let client: LanguageClient;
 
 export function activate(context: ExtensionContext): void {
 
-	console.log(`Activating ${clientName}`);
+	console.log(`Activating ${CLIENT_NAME}`);
 
 	// THIS IS NOT A LANGUAGE SERVER
 	// THIS IS JUST A TRIBUTE
@@ -49,8 +43,8 @@ export function activate(context: ExtensionContext): void {
 	};
 
 	client = new LanguageClient(
-		lspName,
-		lspName,
+		SERVER_NAME,
+		SERVER_NAME,
 		serverOptions,
 		clientOptions
 	);
@@ -59,12 +53,12 @@ export function activate(context: ExtensionContext): void {
 	client.start();
 
 	client.onReady().then(() => {
-		client.onNotification(`${lspName}.noProblemsFound`, () => {
-			window.showInformationMessage(`${appName} has completed validation without finding any problems.`);
+		client.onNotification(SERVER_METHODS.noProblemsFound, () => {
+			window.showInformationMessage(`${APP_NAME} has completed validation without finding any problems.`);
 		});
 	});
 
-	const disposable = commands.registerCommand('pikesies.validate', (uri?: Uri) => {
+	const disposable = commands.registerCommand(APP_COMMANDS.validate, (uri?: Uri) => {
 		// if we don't get a file through the context, check if we got a file open
 		if (typeof (uri) === 'undefined') {
 			if (typeof (window.activeTextEditor) === 'undefined') {
@@ -87,14 +81,14 @@ export function activate(context: ExtensionContext): void {
 
 		console.log(`Triggered validate for ${uri.fsPath}`);
 
-		commands.executeCommand(`${lspName}.validate`, uri.fsPath);
+		commands.executeCommand(SERVER_COMMANDS.validate, uri.fsPath);
 	});
 
 	context.subscriptions.push(disposable);
 }
 
 export function deactivate(): Promise<void> | undefined {
-	console.log(`Deactivating ${clientName}`);
+	console.log(`Deactivating ${CLIENT_NAME}`);
 
 	if (!client) {
 		return undefined;
